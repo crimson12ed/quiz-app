@@ -1,0 +1,22 @@
+.container {
+    max-width: 960px;
+    width: 80%;
+    margin: 4em auto;
+}
+
+.panel {
+    width: 50%;
+    min-height: 15em;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid black;
+    padding: 3em;
+}
+
+.centered {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
