@@ -13,10 +13,26 @@
     padding: 3em;
 }
 
+.question-box {
+    margin-bottom: 1em;
+}
+
 .centered {
     text-align: center;
 }
 
 .hidden {
     display: none;
+}
+
+.correct {
+    border: 1px solid green;
+}
+
+.incorrect {
+    border: 1px solid red;
+}
+
+ul {
+    list-style-type: none;
 }
