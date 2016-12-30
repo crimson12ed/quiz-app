@@ -16,6 +16,7 @@ function escapeHTML(text) {
 
 function initializeState(state, data) {
     state.correctCount = 0;
+    state.currentQuestion = 0;
     state.totalQuestions = data.questions.length;
 
     goToNextQuestion(state, true);
@@ -33,7 +34,7 @@ function goToNextQuestion(state, isFirstQuestion=false) {
 }
 
 function renderScore(state, element) {
-    var output = '<p>' + state.correctCount + ' out of ' + state.currentQuestion + ' correct</p>';
+    var output = '<p>' + state.correctCount + ' correct, ' + (state.currentQuestion -  state.correctCount) + ' incorrect</p>';
     element.html(output);
 }
 
@@ -43,7 +44,8 @@ function renderQuestionContent(state, element) {
     var question = escapeHTML(questionSet.question);
     var choices = questionSet.choices;
 
-    var output = '<p>' + escapeHTML(questionSet.question) + '</p><ul>';
+    var output = '<h3>Question ' + (state.currentQuestion + 1) + ' out of ' + state.totalQuestions + '</h3>';
+    output += '<p>' + escapeHTML(questionSet.question) + '</p><ul>';
     for (var key in choices) {
         output += '<li><input type="radio" name="group" value="' + key + '"> ' + escapeHTML(choices[key]) + '</input></li>';
     }
@@ -60,6 +62,7 @@ function validateAnswer(state, userSubmissionElement) {
 
     choicesElement.find('input[value="' + answer + '"]').parent().addClass("correct");
     choicesElement.siblings(".js-submit-button").attr("disabled", "disabled");
+    choicesElement.find('input[type="radio"]').attr("disabled", "disabled");
 
     if (answer === userResponse) {
         state.correctCount++;
@@ -82,6 +85,12 @@ function renderAnswerContent(state, element, result) {
     }
 
     var output = ('<p>You got the answer ' + answer + '</p><button class="js-next-button">Go To Next Question</button>');
+
+    element.html(output);
+}
+
+function renderEndContent(state, element) {
+    var output = '<button class="js-restart-button">Restart Quiz</button>';
 
     element.html(output);
 }
@@ -130,11 +139,25 @@ $(document).ready(function() {
         if (hasNextQuestion) {
             renderQuestionContent(state, questionContent);
         } else {
-            questionContent.addClass("hidden");
             scoreContent.addClass("hidden");
+            answerContent.removeClass("hidden");
 
-            console.log("Done!");
+            renderScore(state, questionContent);
+            renderEndContent(state, answerContent);
         }
+    });
+
+    answerContent.on("click", ".js-restart-button", function(event) {
+        event.preventDefault();
+
+        console.log("Clicked");
+
+        scoreContent.removeClass("hidden");
+        answerContent.addClass("hidden");
+
+        initializeState(state, data);
+        renderScore(state, scoreContent);
+        renderQuestionContent(state, questionContent);
     });
 });
 
