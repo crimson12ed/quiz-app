@@ -49,7 +49,7 @@ function renderQuestionContent(state, element) {
     for (var key in choices) {
         output += '<li><input type="radio" name="group" value="' + key + '"> ' + escapeHTML(choices[key]) + '</input></li>';
     }
-    output += '</ul><button class="js-submit-button">Submit Answer</button>';
+    output += '</ul><button class="js-submit-button" disabled="disabled">Submit Answer</button>';
 
     element.html(output);
 }
@@ -115,6 +115,10 @@ $(document).ready(function() {
         renderQuestionContent(state, questionContent);
     });
 
+    questionContent.on("click", "input", function(event) {
+        $(".js-submit-button").prop("disabled", false);
+    });
+
     questionContent.on("click", ".js-submit-button", function(event) {
         event.preventDefault();
 
@@ -149,8 +153,6 @@ $(document).ready(function() {
 
     answerContent.on("click", ".js-restart-button", function(event) {
         event.preventDefault();
-
-        console.log("Clicked");
 
         scoreContent.removeClass("hidden");
         answerContent.addClass("hidden");
