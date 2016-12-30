@@ -1,14 +1,24 @@
 (function() {
 "use strict";
 
+// requrire data variable - as var data;
+
 var state = {
     currentQuestion: 0,
     currentAnswer: "",
-    correctCount: 0
+    correctCount: 0,
+    totalQuestions: 0
 };
 
 function escapeHTML(text) {
     return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function initializeState(state, data) {
+    state.correctCount = 0;
+    state.totalQuestions = data.questions.length;
+
+    goToNextQuestion(state, true);
 }
 
 function goToNextQuestion(state, isFirstQuestion=false) {
@@ -20,6 +30,11 @@ function goToNextQuestion(state, isFirstQuestion=false) {
     } else {
         return false;
     }
+}
+
+function renderScore(state, element) {
+    var output = '<p>' + state.correctCount + ' out of ' + state.currentQuestion + ' correct</p>';
+    element.html(output);
 }
 
 function renderQuestionContent(state, element) {
@@ -37,7 +52,6 @@ function renderQuestionContent(state, element) {
     element.html(output);
 }
 
-
 function validateAnswer(state, userSubmissionElement) {
     var choicesElement = userSubmissionElement.parent().parent();
     var questionSet = data.questions[state.currentQuestion];
@@ -49,16 +63,25 @@ function validateAnswer(state, userSubmissionElement) {
 
     if (answer === userResponse) {
         state.correctCount++;
-        return
+        return true;
 
     } else {
         userSubmissionElement.parent().addClass("incorrect");
-        return
+        return false;
     }
 }
 
-function renderAnswerContent(state, element) {
-    var output = '<button class="js-next-button">Go To Next Question</button>';
+function renderAnswerContent(state, element, result) {
+    var answer = '';
+
+    if (result) {
+        answer += "correct!";
+
+    } else {
+        answer += "incorrect.";
+    }
+
+    var output = ('<p>You got the answer ' + answer + '</p><button class="js-next-button">Go To Next Question</button>');
 
     element.html(output);
 }
@@ -66,21 +89,23 @@ function renderAnswerContent(state, element) {
 $(document).ready(function() {
     var startButton = $(".js-start-button");
     var questionContent = $(".js-question-content");
+    var scoreContent = $(".js-score-content");
     var answerContent = $(".js-answer-content");
+    var hasNextQuestion = false;
 
     startButton.click(function(event) {
         event.preventDefault();
 
         $(this).parent().addClass("hidden");
         questionContent.removeClass("hidden");
+        scoreContent.removeClass("hidden");
 
-        goToNextQuestion(state, true);
+        //Start Quiz
+        initializeState(state, data);
+        renderScore(state, scoreContent);
         renderQuestionContent(state, questionContent);
     });
 
-    // When submit answer clicked
-    // - check if answer is correct
-    // - show answer
     questionContent.on("click", ".js-submit-button", function(event) {
         event.preventDefault();
 
@@ -88,8 +113,11 @@ $(document).ready(function() {
         var userSubmissionElement = $(this).siblings("ul").find("input[type='radio']:checked");
         var result = validateAnswer(state, userSubmissionElement);
 
+        hasNextQuestion = goToNextQuestion(state);
+        renderScore(state, scoreContent);
+
         answerContent.removeClass("hidden");
-        renderAnswerContent(state, answerContent);
+        renderAnswerContent(state, answerContent, result);
     });
 
     answerContent.on("click", ".js-next-button", function(event) {
@@ -98,11 +126,13 @@ $(document).ready(function() {
         console.log(state);
 
         answerContent.addClass("hidden");
-        var hasNextQuestion = goToNextQuestion(state);
 
         if (hasNextQuestion) {
             renderQuestionContent(state, questionContent);
         } else {
+            questionContent.addClass("hidden");
+            scoreContent.addClass("hidden");
+
             console.log("Done!");
         }
     });

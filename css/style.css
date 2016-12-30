@@ -14,7 +14,7 @@
 }
 
 .question-box {
-    margin-bottom: 1em;
+    margin-bottom: 1.5em;
 }
 
 .centered {
@@ -35,4 +35,13 @@
 
 ul {
     list-style-type: none;
+}
+
+li {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+
+input[type="radio"] {
+    margin-right: 1em;
 }
